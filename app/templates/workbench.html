@@ -23,8 +23,8 @@
         <section class="mast"><div><small class="department">街段验收</small><h1>补植验收册</h1></div><time id="created" class="clock"></time></section>
         <section class="kpis" aria-label="批次指标"><div class="kpi"><small>有效</small><strong data-count="accepted">—</strong><span>条</span></div>
 <div class="kpi"><small>隔离</small><strong data-count="rejected">—</strong><span>条</span></div>
-<div class="kpi"><small>来源记录</small><strong data-count="input">—</strong><span>条</span></div>
-<div class="kpi"><small>净差</small><strong data-count="delta">—</strong><span>元</span></div>
+<div class="kpi"><small>已核销</small><strong data-count="settled">—</strong><span>株</span></div>
+<div class="kpi"><small>挂起</small><strong data-count="held">—</strong><span>株</span></div>
 <div class="kpi"><small>账差</small><strong data-count="mismatched">—</strong><span>条</span></div>
         </section>
         <div class="grid">
@@ -35,6 +35,13 @@
 
     <section class="panel results" aria-labelledby="phase">
       <div class="panel__head"><h2 id="phase">保活核款</h2><span class="num" id="run-id"></span></div>
+      <div id="writeoff-views" class="filters" hidden>
+        <button class="btn is-on" data-wo-view="batches" type="button">批次核销</button>
+        <button class="btn" data-wo-view="orders" type="button">领用单</button>
+        <button class="btn" data-wo-view="lines" type="button">树位明细</button>
+        <button class="btn" data-wo-view="lots" type="button">苗批余量</button>
+        <button class="btn" data-wo-view="quarantine" type="button">隔离与抑制</button>
+      </div>
       <div id="tools" class="filters" hidden><label>筛选 <input id="filter" type="search" placeholder="街段验收单 / 原因" maxlength="80"></label>
         <label id="only-differences" hidden><input id="differences" type="checkbox"> 只看差异</label><output id="shown"></output></div>
       <div class="scroll" id="grid-data"><p class="empty">运行本班样例</p></div>
@@ -54,7 +61,17 @@
           <label>来源文件 <input id="source-file" type="file" accept=".csv,text/csv"></label>
           <textarea id="source-csv" aria-label="原始记录 CSV" rows="4"></textarea>
           <label>外部账 <input id="book-file" type="file" accept=".csv,text/csv"></label>
-          <textarea id="book-csv" aria-label="外部账 CSV" rows="4"></textarea>
+          <textarea id="book-csv" aria-label="外部账 CSV" rows="3"></textarea>
+          <label>苗批进场账 <input id="stock-file" type="file" accept=".csv,text/csv"></label>
+          <textarea id="stock-csv" aria-label="苗批进场账 CSV" rows="3"></textarea>
+          <label>领用册 <input id="requisitions-file" type="file" accept=".csv,text/csv"></label>
+          <textarea id="requisitions-csv" aria-label="领用册 CSV" rows="4"></textarea>
+          <label>欠苗策略
+            <select id="writeoff-mode">
+              <option value="partial">按余量核销（先结算可足额部分）</option>
+              <option value="whole">整张退回（保住领用单完整）</option>
+            </select>
+          </label>
         </details>
         <output id="notice" role="status"></output>
       </form>

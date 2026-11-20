@@ -12,3 +12,10 @@ REASONS = {
 }
 
 REASONS.update({'TREE_FORMAT': '树木事件无效', 'TREE_CONFLICT': '同日状态冲突', 'TREE_NO_EVENTS': '验收日前无事件', 'TREE_SEQUENCE': '事件顺序无效', 'DATE': '日期格式无效', 'REV_BLOCKED': '较新来源尚未采信'})
+
+REASONS.update({
+    'LOT_CONFLICT': '苗批重复登记', 'REQ_CONFLICT': '领用最高修订冲突',
+    'NO_BASIS': '领用树位没有补植依据', 'UNKNOWN_KEY': '街段验收单未采信',
+    'SPECIES_MISMATCH': '领用树种与补植株不符', 'REQ_DUP_TREE': '同一树位被多张领用单重复认领',
+    'WRITEOFF_HELD': '存在挂起树位，批次不可签收',
+})

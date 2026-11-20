@@ -10,15 +10,28 @@ def lookup(db,run_id):
     return row
 
 
+def extra(db,run_id):
+    return db.execute('SELECT * FROM runs_extra WHERE run_id=?',(run_id,)).fetchone()
+
+
 def fetch(run_id):
     with connection() as db:
         return lookup(db,run_id)
 
 
-def persist(run_id,source,book,result,created):
+def fetch_extra(run_id):
+    with connection() as db:
+        row = extra(db,run_id)
+        return dict(row) if row is not None else None
+
+
+def persist(run_id,source,book,result,created,stock=None,requisitions=None,mode='partial'):
     with connection() as db:
         db.execute('INSERT OR IGNORE INTO runs VALUES (?,?,?,?,?)',
                    (run_id,source,book,json.dumps(result,ensure_ascii=False),created))
+        if stock is not None and requisitions is not None:
+            db.execute('INSERT OR IGNORE INTO runs_extra(run_id,stock,requisitions,mode) VALUES (?,?,?,?)',
+                       (run_id,stock,requisitions,mode))
         return lookup(db,run_id)
 
 

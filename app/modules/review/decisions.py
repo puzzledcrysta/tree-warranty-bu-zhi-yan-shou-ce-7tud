@@ -23,6 +23,10 @@ def decide(run_id,version,decision,note):
             raise DataError('STALE','复核版本已过期，请刷新',409)
         if (run['book']['mismatched'] or run['quarantine'] or decision=='退回') and not note:
             raise DataError('REVIEW_NOTE','有差异时须填写复核意见')
+        writeoff = run.get('writeoff')
+        if decision == '确认' and writeoff is not None and not writeoff['summary']['signable']:
+            raise DataError('WRITEOFF_HELD',
+                            f"挂起树位未清：{', '.join(writeoff['summary']['blocked_batches'])}")
         record = {'version':current+1,'decision':decision,'note':note,'changed':datetime.now(timezone.utc).isoformat()}
         db.execute('INSERT INTO reviews VALUES (?,?,?,?,?)',(run_id,*record.values()))
         return record

@@ -44,6 +44,22 @@ class Paired(Source):
         return input_bytes(self.book, self.book_base64, SAMPLE_ROOT/'external.csv')
 
 
+class WriteoffPair(Paired):
+    stock: CsvText | None = None
+    requisitions: CsvText | None = None
+    mode: Literal['partial', 'whole'] = 'partial'
+
+    def stock_bytes(self):
+        if self.stock is None:
+            raise DataError('REQUIRED', '苗批进场账缺失')
+        return self.stock.encode()
+
+    def requisition_bytes(self):
+        if self.requisitions is None:
+            raise DataError('REQUIRED', '领用册缺失')
+        return self.requisitions.encode()
+
+
 class Review(BaseModel):
     version: int = Field(ge=0)
     decision: Literal['确认','退回']
@@ -51,7 +67,8 @@ class Review(BaseModel):
 
 
 def read_sample(name):
-    choices = {'shift':'shift.csv','external':'external.csv'}
+    choices = {'shift':'shift.csv','external':'external.csv',
+               'stock':'stock.csv','requisitions':'requisitions.csv'}
     if name not in choices:
         raise DataError('DEMO_UNKNOWN','没有此样例',404)
     return SAMPLE_ROOT.joinpath(choices[name]).read_bytes()

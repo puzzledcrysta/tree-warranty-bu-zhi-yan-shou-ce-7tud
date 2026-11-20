@@ -15,6 +15,7 @@
 | M5 养护台账 | 核对独立清单和各类差异 | `POST /api/reconcile` | `app/modules/reconcile/service.py` | `tests/test_reconcile.py` |
 | M6 验收批次 | 打开历史批次并对原文件复跑 | `POST /api/runs` | `app/modules/runs/service.py` | `tests/test_runs.py` |
 | M7 签收底稿 | 登记复核结论并下载证据 | `POST /api/review/{run_id}` | `app/modules/review/decisions.py` | `tests/test_review.py` |
+| M8 苗批核销 | 补植落苗批、挂起欠苗、拦截签收 | `POST /api/writeoff` | `app/modules/writeoff/engine.py` | `tests/test_writeoff.py` |
 
 ## 陷阱登记
 
@@ -34,7 +35,15 @@
 | TRAP-18 | 空文件、空白文件与仅表头 | 测试构造 | `app/modules/intake/service.py` | `tests/test_intake.py::test_empty_states` |
 | TRAP-26 | 陈旧复核版本拒绝 | 测试构造 | `app/modules/review/decisions.py` | `tests/test_review.py::test_stale` |
 | TRAP-114 | replant resets | cases.csv | `app/modules/domain/rule.py` | `tests/test_domain.py::test_replant_resets` |
+| TRAP-201 | 晚到苗批不得追溯补植日 | stock.csv | `app/modules/writeoff/engine.py` | `tests/test_writeoff.py::test_fifo_allocates_arrived_lots_only` |
+| TRAP-202 | 按余量核销拆单且余量不为负 | requisitions.csv | `app/modules/writeoff/engine.py` | `tests/test_writeoff.py::test_balance_never_negative_and_partial_split` |
+| TRAP-203 | 整张退回须回滚余量保单据完整 | requisitions.csv | `app/modules/writeoff/engine.py` | `tests/test_writeoff.py::test_whole_order_rolls_back_to_keep_order_intact` |
+| TRAP-204 | 同单重传/重跑不重复扣减 | requisitions.csv | `app/modules/writeoff/requisition.py` | `tests/test_writeoff.py::test_rerun_same_requisition_deducts_once` |
+| TRAP-205 | 无依据树位挂起并阻断签收 | requisitions.csv | `app/modules/review/decisions.py` | `tests/test_writeoff.py::test_held_positions_block_signoff` |
+| TRAP-206 | 跨单重复认领树位双方隔离 | requisitions.csv | `app/modules/writeoff/engine.py` | `tests/test_writeoff.py::test_duplicate_tree_claim_quarantines_both` |
 
 ## 对账
 
 输入 = 计入 + 隔离 + 重传及版本替换 + 空白记录 + 重复表头。按业务键全外连接，缺失一侧与数值为零分别登记。逐笔差值与总差一致。
+
+苗批核销另做两层闭合：申领总量 = 已核销株数 + 挂起株数；各苗批 `进场数量 - 剩余余量` 之和 = 已核销株数，且剩余余量恒非负。落批只在同树种、进场日不晚于补植日、有余量的苗批间按 FIFO 进行。

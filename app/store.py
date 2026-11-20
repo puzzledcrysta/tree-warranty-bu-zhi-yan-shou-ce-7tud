@@ -8,6 +8,10 @@ CREATE TABLE IF NOT EXISTS runs (
   id TEXT PRIMARY KEY, source BLOB NOT NULL, book BLOB NOT NULL,
   result TEXT NOT NULL, created TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS runs_extra (
+  run_id TEXT PRIMARY KEY REFERENCES runs(id),
+  stock BLOB, requisitions BLOB, mode TEXT NOT NULL DEFAULT 'partial'
+);
 CREATE TABLE IF NOT EXISTS reviews (
   run_id TEXT NOT NULL REFERENCES runs(id), version INTEGER NOT NULL,
   decision TEXT NOT NULL, note TEXT NOT NULL, changed TEXT NOT NULL,

@@ -4,6 +4,7 @@ from app.modules.contract.service import normalize
 from app.modules.quality.service import inspect
 from app.modules.domain.service import calculate
 from app.modules.reconcile.service import compare
+from app.modules.writeoff.service import settle
 
 
 def stages(source):
@@ -16,7 +17,7 @@ def stages(source):
             'domain_bad':domain_bad,'rejected':bad}
 
 
-def execute(source,book):
+def execute(source,book,stock=None,requisitions=None,mode='partial'):
     result = stages(source)
     raw, accepted, bad = (result[key] for key in ('intake','accepted','rejected'))
     suppressed = result['quality']['suppressed']
@@ -25,5 +26,8 @@ def execute(source,book):
     balanced = counts['input'] == sum(value for key,value in counts.items() if key!='input')
     if not balanced:
         raise RuntimeError('来源记录数量无法闭合')
-    return {'counts':counts,'balanced':balanced,'accepted':accepted,'quarantine':bad,'suppressed':suppressed,
-            'reasons':distribution(bad),'book':compare(accepted,book),'encoding':raw['encoding']}
+    report = {'counts':counts,'balanced':balanced,'accepted':accepted,'quarantine':bad,'suppressed':suppressed,
+              'reasons':distribution(bad),'book':compare(accepted,book),'encoding':raw['encoding']}
+    if stock is not None and requisitions is not None:
+        report['writeoff'] = settle(accepted,stock,requisitions,mode)
+    return report

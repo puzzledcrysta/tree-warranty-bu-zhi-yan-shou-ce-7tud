@@ -5,10 +5,8 @@ from app.errors import DataError
 from .values import calendar, whole, number, parts
 
 
-def evaluate(row):
+def parse_events(row):
     cutoff = calendar(row['验收日'])
-    period = whole(row['观察期天数'],1,730)
-    price = number(row['单株款元'],0,10**6)
     events = defaultdict(dict)
     types = {'种植','死亡','补植','巡检存活'}
     for item in parts(row['逐株事件']):
@@ -24,6 +22,30 @@ def evaluate(row):
         events[name][day] = state
     if not events:
         raise DataError('TREE_NO_EVENTS','验收日之前没有逐株记录')
+    return cutoff, events
+
+
+def replants(events):
+    """已采信时序中的每次补植，都是一条可核销的补植事实。调用前时序已由 evaluate 验证。"""
+    found = []
+    for name, timeline in sorted(events.items()):
+        for day, state in sorted(timeline.items()):
+            if state == '补植':
+                found.append({'tree': name, 'day': day.isoformat(),
+                              'species': species_of(name)})
+    return found
+
+
+def species_of(tree):
+    prefix = ''.join(char for char in tree if not char.isdigit())
+    return prefix or tree
+
+
+def evaluate(row):
+    cutoff = calendar(row['验收日'])
+    period = whole(row['观察期天数'],1,730)
+    price = number(row['单株款元'],0,10**6)
+    _, events = parse_events(row)
     paid, proof = 0, []
     for name, timeline in sorted(events.items()):
         active, planted, verified = False, None, False

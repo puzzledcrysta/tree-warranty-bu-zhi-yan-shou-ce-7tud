@@ -17,7 +17,9 @@ docker compose up --build
 1. 检查「巡检底单」与「物候字段」，定位导入坏行与字段归一结果。
 2. 在「异常巡检」区分冲突、业务拒绝、重传与旧版本。
 3. 打开「保活核款」并点击任意记录的「查看依据」。
-4. 在「养护台账」检查金额或用量差异。通过「验收批次」复算原文件，通过「签收底稿」提交意见并下载证据。
+4. 在「养护台账」检查金额或用量差异。
+5. 导入「苗批进场账」与「领用册」，在「苗批核销」按批次查看落批、挂起与苗批余量，可切换「按余量核销 / 整张退回」。
+6. 通过「验收批次」复算原文件，通过「签收底稿」提交意见并下载证据；存在挂起树位的批次不能签收。
 
 接口定义见 `/openapi.json`。字段、允许区间及算例见 [数据字典](docs/DATA-DICTIONARY.md)，模块和回归测试见 [测试登记](docs/DEPTH.md)。
 
@@ -28,4 +30,4 @@ docker compose config --quiet
 docker compose exec -T app pytest -q
 ```
 
-`sample_data/shift.csv` 是班次数据，`sample_data/external.csv` 是独立账样例。`cases.csv` 固定业务反例，`legacy.csv` 和 `truncated.csv` 用于验证历史格式与断行。
+`sample_data/shift.csv` 是班次数据，`sample_data/external.csv` 是独立账样例，`stock.csv` 与 `requisitions.csv` 是苗批进场账和领用册样例（含重传、欠苗、无依据与坏行）。`cases.csv` 固定业务反例，`legacy.csv` 和 `truncated.csv` 用于验证历史格式与断行。

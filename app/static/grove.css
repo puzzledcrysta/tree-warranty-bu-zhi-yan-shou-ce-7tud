@@ -52,6 +52,7 @@
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .filters { padding: 7px var(--pad); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted); }
     .filters input[type=search] { width: min(155px,55vw); }
+    .btn.is-on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 680; }
     .scroll { overflow: auto; max-height: 497px; }
     table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
     .grove th, .grove td { padding: var(--row) calc(var(--pad) * .72); border-bottom: 1px solid var(--line); vertical-align: top; }
